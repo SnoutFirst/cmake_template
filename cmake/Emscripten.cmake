@@ -197,6 +197,8 @@ function(cmake_template_create_web_dist)
   # Generate HTML for app cards
   set(WASM_APPS_HTML "")
   set(WASM_MAIN_DEPLOY_DIR "")
+  set(WASM_MAIN_TITLE "")
+  set(WASM_MAIN_DESCRIPTION "")
   foreach(target ${WASM_TARGETS})
     get_property(TITLE GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_TITLE)
     get_property(DESCRIPTION GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_DESCRIPTION)
@@ -205,6 +207,8 @@ function(cmake_template_create_web_dist)
     # The first target is the canonical app shown by the hero "Live WebApp" link
     if(WASM_MAIN_DEPLOY_DIR STREQUAL "")
       set(WASM_MAIN_DEPLOY_DIR "${DEPLOY_DIR}")
+      set(WASM_MAIN_TITLE "${TITLE}")
+      set(WASM_MAIN_DESCRIPTION "${DESCRIPTION}")
     endif()
 
     # Escape HTML special characters to prevent injection

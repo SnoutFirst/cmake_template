@@ -30,6 +30,15 @@
             text-align: center;
             margin: 2rem 0 1rem;
         }
+        .hero-links .webapp-title {
+            margin: 0 0 0.4rem;
+            font-size: 1.3rem;
+        }
+        .hero-links .webapp-description {
+            margin: 0 0 1.2rem;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
         .hero-links .webapp-link {
             display: inline-block;
             font-size: 1.6rem;
@@ -70,16 +79,13 @@
 
         <header>
             <h1>@PROJECT_NAME@</h1>
-            <p>WebAssembly Applications</p>
         </header>
 
         <div class="hero-links">
+            <p class="webapp-title">@WASM_MAIN_TITLE@</p>
+            <p class="webapp-description">@WASM_MAIN_DESCRIPTION@</p>
             <a href="@WASM_MAIN_DEPLOY_DIR@/" class="webapp-link">🚀 Live WebApp</a>
             <a href="@RELEASES_URL@" class="downloads-link">Desktop Downloads (Windows, Mac, Linux)</a>
-        </div>
-
-        <div class="app-grid">
-            @WASM_APPS_HTML@
         </div>
 
         <footer>
