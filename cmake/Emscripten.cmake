@@ -56,7 +56,7 @@ function(cmake_template_configure_wasm_target target)
   if(EMSCRIPTEN)
     # Parse optional named arguments
     set(options "")
-    set(oneValueArgs TITLE DESCRIPTION RESOURCES_DIR)
+    set(oneValueArgs TITLE DESCRIPTION RESOURCES_DIR DEPLOY_DIR)
     set(multiValueArgs "")
     cmake_parse_arguments(WASM "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -67,6 +67,11 @@ function(cmake_template_configure_wasm_target target)
 
     if(NOT WASM_DESCRIPTION)
       set(WASM_DESCRIPTION "WebAssembly application")
+    endif()
+
+    # By default deploy under the target name, but allow a custom slug (e.g. "webapp")
+    if(NOT WASM_DEPLOY_DIR)
+      set(WASM_DEPLOY_DIR "${target}")
     endif()
 
     # Get the actual output name (may differ from target name)
@@ -80,6 +85,7 @@ function(cmake_template_configure_wasm_target target)
     set_property(GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_TITLE "${WASM_TITLE}")
     set_property(GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_DESCRIPTION "${WASM_DESCRIPTION}")
     set_property(GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_OUTPUT_NAME "${OUTPUT_NAME}")
+    set_property(GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_DEPLOY_DIR "${WASM_DEPLOY_DIR}")
 
     target_compile_definitions(${target} PRIVATE cmake_template_WASM_BUILD=1)
 
@@ -122,6 +128,13 @@ function(cmake_template_configure_wasm_target target)
     set(TARGET_DESCRIPTION "${WASM_DESCRIPTION}")
     set(AT "@")  # For escaping @ in npm package URLs
     set(CONFIGURED_SHELL "${CMAKE_BINARY_DIR}/web/${target}_shell.html")
+
+    # Link back to GitHub Releases for desktop downloads
+    if(DEFINED PROJECT_HOMEPAGE_URL AND PROJECT_HOMEPAGE_URL MATCHES "^https://github.com/")
+      set(RELEASES_URL "${PROJECT_HOMEPAGE_URL}/releases")
+    else()
+      set(RELEASES_URL "https://github.com/${PROJECT_NAME}/${PROJECT_NAME}/releases")
+    endif()
 
     # Generate target-specific shell file (configure_file creates parent directories automatically)
     if(EXISTS "${cmake_template_SHELL_TEMPLATE}")
@@ -183,16 +196,23 @@ function(cmake_template_create_web_dist)
 
   # Generate HTML for app cards
   set(WASM_APPS_HTML "")
+  set(WASM_MAIN_DEPLOY_DIR "")
   foreach(target ${WASM_TARGETS})
     get_property(TITLE GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_TITLE)
     get_property(DESCRIPTION GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_DESCRIPTION)
+    get_property(DEPLOY_DIR GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_DEPLOY_DIR)
+
+    # The first target is the canonical app shown by the hero "Live WebApp" link
+    if(WASM_MAIN_DEPLOY_DIR STREQUAL "")
+      set(WASM_MAIN_DEPLOY_DIR "${DEPLOY_DIR}")
+    endif()
 
     # Escape HTML special characters to prevent injection
     escape_html(TITLE_ESCAPED "${TITLE}")
     escape_html(DESC_ESCAPED "${DESCRIPTION}")
 
     string(APPEND WASM_APPS_HTML
-"            <a href=\"${target}/\" class=\"app-card\">
+"            <a href=\"${DEPLOY_DIR}/\" class=\"app-card\">
                 <h3>${TITLE_ESCAPED}</h3>
                 <p>${DESC_ESCAPED}</p>
             </a>
@@ -201,6 +221,13 @@ function(cmake_template_create_web_dist)
 
   # Generate index.html from template
   set(INDEX_OUTPUT "${WEB_DIST_DIR}/index.html")
+
+  # Compute a releases page URL from the project homepage when available
+  if(DEFINED PROJECT_HOMEPAGE_URL AND PROJECT_HOMEPAGE_URL MATCHES "^https://github.com/")
+    set(RELEASES_URL "${PROJECT_HOMEPAGE_URL}/releases")
+  else()
+    set(RELEASES_URL "https://github.com/${PROJECT_NAME}/${PROJECT_NAME}/releases")
+  endif()
 
   if(EXISTS "${cmake_template_INDEX_TEMPLATE}")
     configure_file("${cmake_template_INDEX_TEMPLATE}" "${INDEX_OUTPUT}" @ONLY)
@@ -216,7 +243,8 @@ function(cmake_template_create_web_dist)
   foreach(target ${WASM_TARGETS})
     get_target_property(TARGET_BINARY_DIR ${target} BINARY_DIR)
     get_property(OUTPUT_NAME GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_OUTPUT_NAME)
-    set(TARGET_DIST_DIR "${WEB_DIST_DIR}/${target}")
+    get_property(DEPLOY_DIR GLOBAL PROPERTY cmake_template_WASM_TARGET_${target}_DEPLOY_DIR)
+    set(TARGET_DIST_DIR "${WEB_DIST_DIR}/${DEPLOY_DIR}")
 
     # Copy WASM artifacts: .html (as index.html), .js, .wasm, and service worker
     # Use OUTPUT_NAME instead of target name for file names

@@ -26,6 +26,38 @@
         .app-card:hover {
             border-color: var(--links);
         }
+        .hero-links {
+            text-align: center;
+            margin: 2rem 0 1rem;
+        }
+        .hero-links .webapp-link {
+            display: inline-block;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #16a34a;
+            background-color: rgba(22, 163, 74, 0.1);
+            border: 2px solid #16a34a;
+            border-radius: 8px;
+            padding: 0.6rem 1.4rem;
+            text-decoration: none;
+            transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+        }
+        .hero-links .webapp-link:hover,
+        .hero-links .webapp-link:focus {
+            color: #ffffff;
+            background-color: #16a34a;
+            transform: scale(1.05);
+        }
+        .hero-links .downloads-link {
+            display: block;
+            margin-top: 1rem;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+        .hero-links .downloads-link:hover,
+        .hero-links .downloads-link:focus {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -40,6 +72,11 @@
             <h1>@PROJECT_NAME@</h1>
             <p>WebAssembly Applications</p>
         </header>
+
+        <div class="hero-links">
+            <a href="@WASM_MAIN_DEPLOY_DIR@/" class="webapp-link">🚀 Live WebApp</a>
+            <a href="@RELEASES_URL@" class="downloads-link">Desktop Downloads (Windows, Mac, Linux)</a>
+        </div>
 
         <div class="app-grid">
             @WASM_APPS_HTML@

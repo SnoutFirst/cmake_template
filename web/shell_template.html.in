@@ -44,6 +44,20 @@
             background-color: var(--background-alt);
             border-radius: 4px;
         }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        footer .downloads-link {
+            font-size: 1rem;
+            text-decoration: none;
+        }
+        footer .downloads-link:hover,
+        footer .downloads-link:focus {
+            text-decoration: underline;
+        }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -92,6 +106,10 @@
                 <li><code>intro.html?verbose&config=settings.json</code></li>
             </ul>
         </section>
+
+        <footer>
+            <a href="@RELEASES_URL@" class="downloads-link">Desktop Downloads (Windows, Mac, Linux)</a>
+        </footer>
     </main>
 
     <script>

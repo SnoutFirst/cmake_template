@@ -22,5 +22,6 @@ if(EMSCRIPTEN)
   cmake_template_configure_wasm_target(intro
     TITLE "Intro - FTXUI Sample"
     DESCRIPTION "FTXUI-based terminal application"
+    DEPLOY_DIR webapp
   )
 endif()
